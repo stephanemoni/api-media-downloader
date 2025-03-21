@@ -36,6 +36,19 @@ export const apiSchema = z.object({
                      .regex(/^[0-9a-zA-Z\-]+$/)
                      .optional(),
 
+    startTime:  z.string()
+                 .optional(),
+     
+    endTime:    z.string()
+                .optional(),
+
+    watermark: z.object({
+        url : z.string().min(1),
+        position : z.string().optional(),
+        scale : z.coerce.number().optional(),
+        opacity : z.coerce.number().optional(),
+    }).optional(),
+
     // TODO: remove this variable as it's no longer used
     // and is kept for schema compatibility reasons
     youtubeDubBrowserLang: z.boolean().default(false),
