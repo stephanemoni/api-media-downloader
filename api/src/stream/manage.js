@@ -40,6 +40,10 @@ export function createStream(obj) {
             audioCopy: !!obj.audioCopy,
             audioFormat: obj.audioFormat,
 
+            startTime: obj.startTime,
+            endTime: obj.endTime,
+            watermark: obj.watermark,
+            
             isHLS: obj.isHLS || false,
             originalRequest: obj.originalRequest
         };

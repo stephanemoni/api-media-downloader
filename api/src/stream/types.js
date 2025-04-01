@@ -116,15 +116,90 @@ const merge = (streamInfo, res) => {
 
         let args = [
             '-loglevel', '-8',
+            // '-loglevel', 'verbose',
             '-headers', rawHeaders,
             '-i', streamInfo.urls[0],
             '-headers', rawHeaders,
             '-i', streamInfo.urls[1],
-            '-map', '0:v',
-            '-map', '1:a',
+            //'-map', '0:v',
+            //'-map', '1:a',
         ]
 
-        args = args.concat(ffmpegArgs[format]);
+        // args = args.concat(ffmpegArgs[format]);
+
+        if (streamInfo.watermark) {
+            let watermarkPosition;
+            let watermarkScale;
+            let watermarkOpacity;
+            if (!/^(\d{1,4}:\d{1,4})$/.test(streamInfo.watermark.position)) {
+                // console.log(streamInfo.watermark.position + " does not match d{1,4}:d{1,4}");
+                switch (streamInfo.watermark.position) {
+                    default:
+                    case "center":
+                        watermarkPosition = "(main_w-overlay_w)/2:(main_h-overlay_h)/2";
+                        break;
+
+                    case "topLeft":
+                        watermarkPosition = "10:10";
+                        break;
+    
+                    case "topRight":
+                        watermarkPosition = "(main_w-overlay_w)-10:10";
+                        break;
+                                
+                    case "bottomLeft":
+                        watermarkPosition = "10:(main_h-overlay_h)-10";
+                        break;
+                    case "bottomRight":
+                        watermarkPosition = "(main_w-overlay_w)-10:(main_h-overlay_h)-10";
+                        break;
+                }
+            }
+            else {
+                // console.log(streamInfo.watermark.position + " matches d{1,4}:d{1,4}");
+                watermarkPosition = streamInfo.watermark.position;
+            }
+            
+            watermarkScale = (streamInfo.watermark.scale) ? streamInfo.watermark.scale : 1.0;
+            watermarkOpacity = (streamInfo.watermark.opacity) ? streamInfo.watermark.opacity : 1.0;
+
+            // console.log('watermark',streamInfo.watermark);
+            // console.log('watermarkScale',watermarkScale);
+            // console.log('watermarkPosition',watermarkPosition);
+            // console.log('watermarkOpacity',watermarkOpacity);
+
+            args.push('-i', streamInfo.watermark.url)
+            
+            //args.push('-filter_complex', `[0][2]overlay=${watermarkPosition}:format=yuv444[v]`)
+            // args.push('-filter_complex', `[2]scale=iw*${watermarkScale}:-1[logo];[0][logo]overlay=${watermarkPosition}:format=yuv444[v]`)
+            // args.push('-filter_complex', `[2][0]scale2ref=w=iw*${watermarkScale}:h=ow/mdar[logo][video];[video][logo]overlay=${watermarkPosition}:format=yuv444[v]`)
+            // args.push('-filter_complex', `[2][0]scale2ref=w=iw*${watermarkScale}:h=ow/mdar[watermark][video];[watermark]colorchannelmixer=aa=${watermarkOpacity}[logo];[video][logo]overlay=${watermarkPosition}:format=yuv444[v]`)
+            // args.push('-filter_complex', `[2][0]scale2ref=w=oh/mdar:h=ih*${watermarkScale}[watermark][video];[watermark]colorchannelmixer=aa=${watermarkOpacity}[logo];[video][logo]overlay=${watermarkPosition}:format=yuv444[v]`)
+            args.push('-filter_complex', `[2][0]scale2ref=w='if(gte(iw\,ih)\,iw*${watermarkScale}\,oh/mdar)':h='if(gte(iw\,ih)\,ow/mdar\,ih*${watermarkScale})'[watermark][video];[watermark]colorchannelmixer=aa=${watermarkOpacity}[logo];[video][logo]overlay=${watermarkPosition}:format=yuv444[v]`)
+            args.push('-map', '[v]')
+            args.push('-map', '1:a')
+            args.push('-movflags', 'frag_keyframe+empty_moov')
+            args.push('-f', 'ismv')
+            
+            const ffmpegNewArgs = ffmpegArgs[format].splice(2,ffmpegArgs[format].length-2);
+            args = args.concat(ffmpegNewArgs);
+            
+        }
+        else {
+            args.push('-map', '0:v')
+            args.push('-map', '1:a')
+            args.push('-movflags', 'frag_keyframe+empty_moov')
+            args.push('-f', 'ismv')
+            args = args.concat(ffmpegArgs[format]);
+        }
+
+         if (streamInfo.startTime) {
+            args.push('-ss', streamInfo.startTime)
+        }
+        
+        if (streamInfo.endTime) {
+            args.push('-to', streamInfo.endTime)
+        }
 
         if (hlsExceptions.includes(streamInfo.service) && streamInfo.isHLS) {
             if (streamInfo.service === "youtube" && format === "webm") {
@@ -184,6 +259,14 @@ const remux = (streamInfo, res) => {
             '-i', streamInfo.urls,
             '-c:v', 'copy',
         )
+
+        if (streamInfo.startTime) {
+            args.push('-ss', streamInfo.startTime)
+        }
+        
+        if (streamInfo.endTime) {
+            args.push('-to', streamInfo.endTime)
+        }
 
         if (streamInfo.type === "mute") {
             args.push('-an');
@@ -247,6 +330,14 @@ const convertAudio = (streamInfo, res) => {
             '-i', streamInfo.urls,
             '-vn'
         )
+
+        if (streamInfo.startTime) {
+            args.push('-ss', streamInfo.startTime)
+        }
+        
+        if (streamInfo.endTime) {
+            args.push('-to', streamInfo.endTime)
+        }
 
         if (streamInfo.audioCopy) {
             args.push("-c:a", "copy")
