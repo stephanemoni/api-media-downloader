@@ -23,6 +23,12 @@ import * as APIKeys from "../security/api-keys.js";
 import * as Cookies from "../processing/cookie/manager.js";
 import * as YouTubeSession from "../processing/helpers/youtube-session.js";
 
+// import packages
+import { BG } from 'bgutils-js';
+import { JSDOM } from 'jsdom';
+// Bun:
+import { Innertube, UniversalCache } from 'youtubei.js';
+
 const git = {
     branch: await getBranch(),
     commit: await getCommit(),
@@ -319,6 +325,54 @@ export const runAPI = async (express, app, __dirname, isPrimary = true) => {
     };
 
     app.get('/itunnel', itunnelHandler);
+
+    // bgUtils Youtube token generator
+    app.get('/token', async (req, res) => {
+
+        // Create a barebones Innertube instance so we can get a visitor data string from YouTube.
+        var innertube = await Innertube.create({ retrieve_player: false });
+        var requestKey = 'O43z0dpjhgX20SCx4KAo';
+        var visitorData = innertube.session.context.client.visitorData;
+        if (!visitorData)
+            throw new Error('Could not get visitor data');
+        var dom = new JSDOM();
+        Object.assign(globalThis, {
+            window: dom.window,
+            document: dom.window.document
+        });
+        var bgConfig = {
+            fetch: function (input, init) { return fetch(input, init); },
+            globalObj: globalThis,
+            identifier: visitorData,
+            requestKey: requestKey
+        };
+        var bgChallenge = await BG.Challenge.create(bgConfig);
+        if (!bgChallenge)
+            throw new Error('Could not get challenge');
+        var interpreterJavascript = bgChallenge.interpreterJavascript.privateDoNotAccessOrElseSafeScriptWrappedValue;
+        if (interpreterJavascript) {
+            new Function(interpreterJavascript)();
+        }
+        else
+            throw new Error('Could not load VM');
+        var poTokenResult = await BG.PoToken.generate({
+            program: bgChallenge.program,
+            globalName: bgChallenge.globalName,
+            bgConfig: bgConfig
+        });
+        var placeholderPoToken = BG.PoToken.generatePlaceholder(visitorData);
+        var bgUtilsSession = {
+            visitor_data: visitorData,
+            placeholderPoToken: placeholderPoToken,
+            potoken: poTokenResult.poToken,
+            updated: `${startTimestamp}`,
+            integrityTokenData: poTokenResult.integrityTokenData
+        };
+        //console.log('Session Info:', bgUtilsSession);
+        
+        res.type('json');
+        res.status(200).send(bgUtilsSession);
+    })
 
     app.get('/', (_, res) => {
         res.type('json');
