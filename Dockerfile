@@ -1,4 +1,4 @@
-FROM node:23-alpine AS base
+FROM node:22-bullseye-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
@@ -7,7 +7,8 @@ WORKDIR /app
 COPY . /app
 
 RUN corepack enable
-RUN apk add --no-cache python3 alpine-sdk
+RUN apt-get update && \
+    apt-get install -y python3 build-essential
 
 #RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 RUN pnpm install --prod --frozen-lockfile

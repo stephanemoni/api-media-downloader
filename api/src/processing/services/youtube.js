@@ -457,6 +457,20 @@ export default async function (o) {
             urls = audio.decipher(innertube.session.player);
         }
 
+        await fetch(urls,{
+            dispatcher: o.dispatcher,
+            method: "HEAD",
+        }
+        ).then((res) => {
+            if (res.status === 200 ) {
+                // file is present at URL
+                // console.log('audio', urls);
+            } else {
+                // file is not present at URL
+                throw new Error("Unauthorized access: couldn't fetch the audio");
+            }
+        });
+
         return {
             type: "audio",
             isAudioOnly: true,
@@ -501,6 +515,20 @@ export default async function (o) {
 
         filenameAttributes.qualityLabel = `${resolution}p`;
         filenameAttributes.youtubeFormat = codec;
+
+        await fetch(video,{
+            dispatcher: o.dispatcher,
+            method: "HEAD",
+        }
+        ).then((res) => {
+            if (res.status === 200 ) {
+                // file is present at URL
+                // console.log('video', video);
+            } else {
+                // file is not present at URL
+                throw new Error("Unauthorized access: couldn't fetch the video");
+            }
+        });
 
         return {
             type: "merge",

@@ -1,0 +1,6 @@
+gcloud run deploy
+
+media-downloader-1
+34
+y
+gcloud run services update media-downloader-1 --update-env-vars API_URL=https://api1-media-downloader.api-hub.cloud/,API_PORT=9000,API_AUTH_REQUIRED=1,API_KEY_URL=file://keys.json,YOUTUBE_SESSION_SERVER=https://api1-media-downloader.api-hub.cloud/token,API_EXTERNAL_PROXY="http://stephmoni-proxyId-PRTBKZOLGH:9c6698e459c2b3f8c3f2fd90a10583edd2ae0e016bf9fb950a9ce97823ed3250@mobile.free.proxyrack.net:9000"
