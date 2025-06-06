@@ -23,29 +23,29 @@
     },
     "homepage": "https://github.com/imputnet/cobalt#readme",
     "dependencies": {
-        "@datastructures-js/priority-queue": "^6.3.1",
+        "@datastructures-js/priority-queue": "^6.3.3",
         "@imput/psl": "^2.0.4",
         "@imput/version-info": "workspace:^",
         "bgutils-js": "^3.2.0",
         "content-disposition-header": "0.6.0",
         "cors": "^2.8.5",
-        "dotenv": "^16.0.1",
+        "dotenv": "^16.5.0",
         "express": "^4.21.2",
-        "express-rate-limit": "^7.4.1",
-        "ffmpeg-static": "^5.1.0",
-        "hls-parser": "^0.10.7",
+        "express-rate-limit": "^7.5.0",
+        "ffmpeg-static": "^5.2.0",
+        "hls-parser": "^0.10.9",
         "ipaddr.js": "2.2.0",
-        "jsdom": "^26.0.0",
-        "nanoid": "^5.0.9",
+        "jsdom": "^26.1.0",
+        "nanoid": "^5.1.5",
         "set-cookie-parser": "2.6.0",
-        "undici": "^5.19.1",
+        "undici": "^5.29.0",
         "url-pattern": "1.0.3",
         "youtubei.js": "^13.4.0",
-        "zod": "^3.23.8"
+        "zod": "^3.25.55"
     },
     "optionalDependencies": {
         "freebind": "^0.2.2",
-        "rate-limit-redis": "^4.2.0",
-        "redis": "^4.7.0"
+        "rate-limit-redis": "^4.2.1",
+        "redis": "^4.7.1"
     }
 }
