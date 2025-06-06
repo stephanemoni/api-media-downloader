@@ -43,6 +43,7 @@ export function createStream(obj) {
             startTime: obj.startTime,
             endTime: obj.endTime,
             watermark: obj.watermark,
+            durationLimit: obj.durationLimit,
             
             isHLS: obj.isHLS || false,
             originalRequest: obj.originalRequest

@@ -108,6 +108,7 @@ export default async function({ host, patternMatch, params }) {
                     startTime: params.startTime,
                     endTime: params.endTime,
                     watermark: params.watermark,
+                    durationLimit: params.durationLimit,
                     youtubeHLS: params.youtubeHLS,
                 }
 
@@ -274,7 +275,7 @@ export default async function({ host, patternMatch, params }) {
             switch(r.error) {
                 case "content.too_long":
                     context = {
-                        limit: env.durationLimit / 60,
+                        limit: params.durationLimit ? params.durationLimit / 60 :  env.durationLimit / 60,
                     }
                     break;
 

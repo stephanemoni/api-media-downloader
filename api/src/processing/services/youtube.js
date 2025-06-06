@@ -202,7 +202,7 @@ export default async function (o) {
         return { error: "content.video.live" };
     }
 
-    if (basicInfo.duration > env.durationLimit) {
+    if (o.durationLimit && basicInfo.duration > o.durationLimit || basicInfo.duration > env.durationLimit) {
         return { error: "content.too_long" };
     }
 

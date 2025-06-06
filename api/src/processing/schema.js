@@ -49,6 +49,8 @@ export const apiSchema = z.object({
         opacity : z.coerce.number().optional(),
     }).optional(),
 
+    durationLimit: z.coerce.number().optional(),
+
     // TODO: remove this variable as it's no longer used
     // and is kept for schema compatibility reasons
     youtubeDubBrowserLang: z.boolean().default(false),
